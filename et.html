@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expense Tracker</title>
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    #expense-tracker {
+      max-width: 600px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 15px;
+      backdrop-filter: blur(10px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      animation: fadeIn 1s ease-in-out;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 20px;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    form {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 10px;
+    }
+
+    input {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      font-size: 16px;
+      outline: none;
+      transition: background 0.3s ease;
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    input:focus {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    button {
+      padding: 12px 20px;
+      background: #007bff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    button:hover {
+      background: #0056b3;
+      transform: translateY(-2px);
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      animation: slideIn 0.5s ease-in-out;
+      transition: background 0.3s ease;
+    }
+
+    li:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .edit, .delete {
+      margin-left: 10px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    .edit {
+      background: #28a745;
+    }
+
+    .edit:hover {
+      background: #218838;
+      transform: translateY(-2px);
+    }
+
+    .delete {
+      background: #dc3545;
+    }
+
+    .delete:hover {
+      background: #c82333;
+      transform: translateY(-2px);
+    }
+
+    h3 {
+      text-align: center;
+      font-size: 1.5rem;
+      margin-top: 20px;
+      color: #fff;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="expense-tracker">
+    <h1>Expense Tracker</h1>
+    <form id="expense-form">
+      <input type="text" id="expense-name" placeholder="Expense Name" required>
+      <input type="number" id="expense-amount" placeholder="Amount" required>
+      <button type="submit">Add Expense</button>
+    </form>
+    <ul id="expense-list"></ul>
+    <h3>Total: Rs:<span id="total-amount">0</span></h3>
+  </div>
+  <script>
+    const expenseForm = document.getElementById('expense-form');
+    const expenseNameInput = document.getElementById('expense-name');
+    const expenseAmountInput = document.getElementById('expense-amount');
+    const expenseList = document.getElementById('expense-list');
+    const totalAmountDisplay = document.getElementById('total-amount');
+
+    let expenses = [];
+
+    // Function to render expenses
+function renderExpenses() {
+  expenseList.innerHTML = '';
+  let totalAmount = 0;
+
+  expenses.forEach((expense, index) => {
+    totalAmount += expense.amount;
+
+    const li = document.createElement('li');
+    li.innerHTML = `
+      <span>${expense.name} - Rs ${expense.amount.toFixed(2)}</span>
+      <button class="edit" data-index="${index}">Edit</button>
+      <button class="delete" data-index="${index}">Delete</button>
+    `;
+
+    expenseList.appendChild(li);
+  });
+
+  totalAmountDisplay.textContent = `Rs ${totalAmount.toFixed(2)}`;
+}
+
+    // Add Expense
+    expenseForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const name = expenseNameInput.value.trim();
+      const amount = parseFloat(expenseAmountInput.value);
+
+      if (name && !isNaN(amount) && amount > 0) {
+        expenses.push({ name, amount });
+        expenseNameInput.value = '';
+        expenseAmountInput.value = '';
+        renderExpenses();
+      }
+    });
+
+    // Edit or Delete Expense
+    expenseList.addEventListener('click', (e) => {
+      const index = e.target.dataset.index;
+
+      if (e.target.classList.contains('edit')) {
+        const expense = expenses[index];
+        expenseNameInput.value = expense.name;
+        expenseAmountInput.value = expense.amount;
+        expenses.splice(index, 1);
+        renderExpenses();
+      }
+
+      if (e.target.classList.contains('delete')) {
+        expenses.splice(index, 1);
+        renderExpenses();
+      }
+    });
+
+    // Initial Render
+    renderExpenses();
+  </script>
+</body>
+</html>                                             
